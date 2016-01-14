@@ -1,8 +1,8 @@
-package my;
+package htmlParser;
 
 import javax.swing.text.html.HTMLEditorKit;
 
-class ParserGetter extends HTMLEditorKit
+class HTMLParserGetter extends HTMLEditorKit
 {
   private static final long serialVersionUID = 1L;
 
