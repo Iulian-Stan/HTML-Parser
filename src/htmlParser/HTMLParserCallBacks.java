@@ -1,5 +1,7 @@
 package htmlParser;
 
+import java.util.Arrays;
+
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLEditorKit;
@@ -21,16 +23,18 @@ class HTMLParserCallBacks extends HTMLEditorKit.ParserCallback {
 	public void handleSimpleTag(HTML.Tag tag, MutableAttributeSet attributes, int position) {
 		this.handleTag(tag, attributes);
 	}
-
+	
 	public void handleTag(HTML.Tag tag, MutableAttributeSet attributes) {
 		currentTag = tag;
-		Object attribute = null;
+		Object attribute = null;		
 		if (tag == HTML.Tag.A) {
 			attribute = attributes.getAttribute(HTML.Attribute.REL);
 			if (attribute == null || !attribute.toString().equalsIgnoreCase("NOFOLLOW")) {
 				attribute = attributes.getAttribute(HTML.Attribute.HREF);
 				if (attribute != null && attribute.toString().indexOf('#') < 0) {
-					page.links.add(page.url.rezolve(attribute.toString()));
+					try {
+						page.links.add(page.url.rezolve(attribute.toString()));
+					} catch(Exception e){}
 				}
 			}
 		}
@@ -40,9 +44,9 @@ class HTMLParserCallBacks extends HTMLEditorKit.ParserCallback {
 				String key = attribute.toString();
 				attribute = attributes.getAttribute(HTML.Attribute.CONTENT);
 				if (attribute != null) {
-					if (key.equalsIgnoreCase("KEYWORDS") || key.equalsIgnoreCase("DESCRIPTION"))
-						for (String word : attribute.toString().toLowerCase().split("\\W+"))
-							page.words.add(word.toLowerCase());
+					if (key.equalsIgnoreCase("KEYWORDS") || key.equalsIgnoreCase("DESCRIPTION")) {
+						page.words.addAll(Arrays.asList(attribute.toString().split("[\\W]")));
+					}
 					if (key.equalsIgnoreCase("ROBOTS")) {
 						String value = attribute.toString().toUpperCase();
 						page.toFollow = !value.contains("NOFOLLOW");
